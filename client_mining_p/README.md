@@ -11,7 +11,7 @@ Furthermore, the amount of work needed to actually mine a block is a bit low.  W
 
 *Server*
 Modify the server we created to:
-* Remove the `proof_of_work` function from the server.
+* Remove the `proof_of_work` function from the server.   X
 * Change `valid_proof` to require *6* leading zeroes.     x
 * Add an endpoint called `last_block` that returns the last block in the chain           x
 * Modify the `mine` endpoint to instead receive and validate or reject a new proof sent by a client.
@@ -24,11 +24,11 @@ Modify the server we created to:
 
 *Client Mining*
 Create a client application that will:
-* Get the last block from the server
-* Run the `proof_of_work` function until a valid proof is found, validating or rejecting each attempt.  Use a copy of `valid_proof` to assist.
-* Print messages indicating that this has started and finished.
-* Modify it to generate proofs with *6* leading zeroes.
-* Print a message indicating the success or failure response from the server
+* Get the last block from the server X
+* Run the `proof_of_work` function until a valid proof is found, validating or rejecting each attempt.  Use a copy of `valid_proof` to assist. X
+* Print messages indicating that this has started and finished. X
+* Modify it to generate proofs with *6* leading zeroes. X
+* Print a message indicating the success or failure response from the server X
 * Add any coins granted to a simple integer total, and print the amount of coins the client has earned
 * Continue mining until the app is interrupted.
 * Change the name in `my_id.txt` to your name
