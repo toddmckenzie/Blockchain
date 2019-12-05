@@ -4,7 +4,7 @@ import requests
 import sys
 import json
 
-DIFFICULTY = 6
+DIFFICULTY = 4
 
 def proof_of_work(block):
     """
@@ -20,6 +20,7 @@ def proof_of_work(block):
     while valid_proof(block_string, proof) is False:
         proof += 1
 
+    print(block)
     print('Proof of work has finished.')
     return proof
 
@@ -42,12 +43,13 @@ def valid_proof(block_string, proof):
     return guess_hash[:DIFFICULTY] == "0" * DIFFICULTY
 
 
+
 if __name__ == '__main__':
     # What is the server address? IE `python3 miner.py https://server.com/api/`
     if len(sys.argv) > 1:
         node = sys.argv[1]
     else:
-        node = "http://localhost:4001"
+        node = "http://localhost:4004"
 
     # Load ID
     f = open("my_id.txt", "r")
@@ -55,13 +57,15 @@ if __name__ == '__main__':
     print("ID is", id)
     f.close()
 
+    coins_mined = 0
     # Run forever until interrupted
     while True:
+        print('Starting to look for proof')
         r = requests.get(url=node + "/last_block")
         # Handle non-json response
+       
         try:
             data = r.json()
-            print(data)
         except ValueError:
             print("Error:  Non-json response")
             print("Response returned:")
@@ -70,19 +74,30 @@ if __name__ == '__main__':
 
         # TODO: Get the block from `data` and use it to look for a new proof
         # new_proof = ???
-        print(data)
-        new_proof = data.block.proof
+
+       
+        last_block = data['last_block']
+        new_proof = proof_of_work(last_block)
+        print(f"Proof found: {new_proof}")
         # When found, POST it to the server {"proof": new_proof, "id": id}
 
     ##temp removing
-        # post_data = {"proof": new_proof, "id": id}
+        post_data = {"proof": new_proof, "id": id}
 
-        # r = requests.post(url=node + "/mine", json=post_data)
-        # data = r.json()
-
+        r = requests.post(url=node + "/mine", json=post_data)
+        try: 
+            data = r.json()
+        except ValueError:
+            print("Error:  Non-json response")
+            print("Response returned:")
+            print(r)
+            break
     ##to here
 
         # TODO: If the server responds with a 'message' 'New Block Forged'
         # add 1 to the number of coins mined and print it.  Otherwise,
         # print the message from the server.
-        pass
+        if data['message'] == 'New Block Forged':
+            coins_mined += 1
+
+        print(f"Coins minde {coins_mined}")

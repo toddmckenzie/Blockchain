@@ -4,7 +4,7 @@ from time import time
 from uuid import uuid4
 from flask import Flask, jsonify, request
 
-DIFFICULTY = 6
+DIFFICULTY = 4
 
 class Blockchain(object):
     def __init__(self):
@@ -149,33 +149,33 @@ class Blockchain(object):
 
     # @staticmethod
 
-    # def valid_proof(block_string, proof):
+    def valid_proof(self, block_string, proof):
 
-    #     """
+        """
 
-    #     Validates the Proof:  Does hash(block_string, proof) contain 3
+        Validates the Proof:  Does hash(block_string, proof) contain 3
 
-    #     leading zeroes?  Return true if the proof is valid
+        leading zeroes?  Return true if the proof is valid
 
-    #     :param block_string: <string> The stringified block to use to
+        :param block_string: <string> The stringified block to use to
 
-    #     check in combination with `proof`
+        check in combination with `proof`
 
-    #     :param proof: <int?> The value that when combined with the
+        :param proof: <int?> The value that when combined with the
 
-    #     stringified previous block results in a hash that has the
+        stringified previous block results in a hash that has the
 
-    #     correct number of leading zeroes.
+        correct number of leading zeroes.
 
-    #     :return: True if the resulting hash is a valid proof, False otherwise
+        :return: True if the resulting hash is a valid proof, False otherwise
 
-    #     """
+        """
 
-    #     guess = f'{block_string}{proof}'.encode()
+        guess = f'{block_string}{proof}'.encode()
 
-    #     guess_hash = hashlib.sha256(guess).hexdigest()
+        guess_hash = hashlib.sha256(guess).hexdigest()
 
-    #     return guess_hash[:DIFFICULTY] == "0" * DIFFICULTY
+        return guess_hash[:DIFFICULTY] == "0" * DIFFICULTY
 
 # Instantiate our Node
 
@@ -193,27 +193,37 @@ blockchain = Blockchain()
 #NEW PROOF SENT BY CLIENT.
 
 def mine():
-    data = request.get_json()
-    print('data in /mine')
-    if not data[proof] or not data[id]:
-        return "Message - Error", 400
+    try:
+        values = request.get_json()
+    except ValueError:
+        print("Error:  Non-json response")
+        print("Response returned:")
+        return "Error" 
+
+    required = ['proof', 'id']
+    if not all(k in values for k in required):
+        response = {'message': "Missing Values"}
+        return jsonify(response), 400
     
-    if len(blockchain) == 1:
-        return "SUCCESS", 200
+    submitted_proof = values['proof']
+
+    last_block = blockchain.last_block
+    last_block_string = json.dumps(last_block, sort_keys=True)
+    if blockchain.valid_proof(last_block_string, submitted_proof):
+        previous_hash = blockchain.hash(blockchain.last_block)
+        new_block = blockchain.new_block(submitted_proof, previous_hash)
+
+        response = {
+            'message': "New Block Forged",
+            'block': 'block'
+            }
+
+        return jsonify(response), 200
     else:
-        return "Failure", 500
-
-    # previous_hash = blockchain.hash(blockchain.last_block)
-
-    # new_block = blockchain.new_block(proof, previous_hash)
-
-    response = {
-
-        'block': 'block'
-
-    }
-
-    return jsonify(response), 200
+        response = {
+            'message': "Proof invalid or already submitted"
+        }
+        return jsonify(response), 200
 
 @app.route('/chain', methods=['GET'])
 
@@ -234,7 +244,7 @@ def full_chain():
 def last_block():
 
     response = {
-        'block': blockchain.last_block
+        'last_block': blockchain.last_block
     }
     return jsonify(response), 200
 
@@ -242,4 +252,4 @@ def last_block():
 
 if __name__ == '__main__':
 
-    app.run(host='0.0.0.0', port=4002)
+    app.run(host='0.0.0.0', port=4004)
