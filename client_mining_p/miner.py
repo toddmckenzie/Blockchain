@@ -4,7 +4,7 @@ import requests
 import sys
 import json
 
-DIFFICULTY = 4
+DIFFICULTY = 5
 
 def proof_of_work(block):
     """
