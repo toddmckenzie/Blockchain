@@ -9,16 +9,16 @@ function App() {
   const [ transactions, setTransactions ] = useState([]);
 
 
-  useEffect(() => {
-    axios.get('localhost:4006/mine')
-      .then(res => {
-        console.log(res.data)
-        setCurrentBalance(res.data)
-      })
-      .catch(err => {
-        console.log(err)
-      })
-  },[])
+  // useEffect(() => {
+  //   axios.get('localhost:4006/mine')
+  //     .then(res => {
+  //       console.log(res.data)
+  //       setCurrentBalance(res.data)
+  //     })
+  //     .catch(err => {
+  //       console.log(err)
+  //     })
+  // },[])
 
   useEffect(() => {
     axios.get('localhost:4006/chain')
@@ -30,15 +30,9 @@ function App() {
       })
   })
 
-  changeId = (id)
-    axios.post(`localhost:4006/${id}/${newId}`)
-      .then(res => {
-        console.log(res.data)
-        setId(res.data)
-      })
-      .catch(err => {
-        console.log(err)
-      })
+  changeId = () => {
+
+  }
 
   return (
     <div className="App">
@@ -46,7 +40,6 @@ function App() {
       <input placeholder="Enter id" onChange={(e) => e.target.value} />
       <button onClick={() => enterId()}>Enter id</button>
       <h4 style={{textAlign: "center"}}>Balance: {currentBalance}</h4>
-      <
     </div>
   );
 }
